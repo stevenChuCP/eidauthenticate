@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<Include>
+﻿<Include xmlns="http://wixtoolset.org/schemas/v4/wxs">
   <!-- <?define ProductVersion="0.5.0.0" ?>-->
   <?define ProductCode="102850c2-b430-4004-b20a-13242179d623" ?>
 	<?define UpgradeCode="390C3A94-6CE6-45EB-850D-68384A483603" ?>
@@ -9,10 +8,10 @@
 		<?define Win64 = "yes" ?>
 		<?define PlatformSystemFolder = "System64Folder" ?>
 		
-	<?else ?>
+	<?else?>
 		<?define ProductName = "EIDAuthenticate" ?>
 		<?define Win64 = "no" ?>
 		<?define PlatformSystemFolder = "SystemFolder" ?>
-	<?endif ?>
+	<?endif?>
 	<?define SourceDir = "$(var.SolutionDir)$(var.Platform)\$(var.Configuration)"?>
 </Include>

@@ -2,5 +2,5 @@ download lastest version of
 windows sdk
 Cryptographic Provider Development Kit
 (https://www.microsoft.com/en-us/download/details.aspx?id=30688)
-WIX 3.5
-(http://wix.sourceforge.net/releases/3.5.2519.0/Wix35.msi)
+WIX 4
+(https://www.firegiant.com/wix/heatwave/)
