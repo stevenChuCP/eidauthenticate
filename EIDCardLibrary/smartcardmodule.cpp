@@ -7,7 +7,7 @@
 #include <winscard.h>
 #pragma warning(pop)
 
-// cardmoh.h can be found in "Microsoft CNG Development Kit"
+// cardmoh.h can be found in "Microsoft Cryptographic Provider Development Kit"
 #include <cardmod.h>
 #include "Tracing.h"
 #include "EIDCardLibrary.h"
