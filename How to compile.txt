@@ -1,4 +1,4 @@
-download lastest version of 
+download latest version of 
 windows sdk
 Cryptographic Provider Development Kit
 (https://www.microsoft.com/en-us/download/details.aspx?id=30688)
