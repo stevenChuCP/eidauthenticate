@@ -589,6 +589,8 @@ BOOL CStoredCredentialManager::UpdateCredential(__in DWORD dwRid, __in PWSTR szP
 	SetLastError(dwError);
 	return fReturn;
 }
+
+// The challenge is the stored symmetric key.
 BOOL CStoredCredentialManager::GetChallenge(__in DWORD dwRid, __out PBYTE* ppChallenge, __out PDWORD pdwChallengeSize, __out PDWORD pType)
 {
 	BOOL fReturn = FALSE, fStatus;
@@ -919,6 +921,7 @@ BOOL CStoredCredentialManager::GetResponseFromChallenge(__in PBYTE pChallenge, _
 	EIDCardLibraryTrace(WINEVENT_LEVEL_WARNING,L"Type not implemented");
 	return FALSE;
 }
+// Decrypt challenge using private key stored in users LSA.
 BOOL CStoredCredentialManager::GetResponseFromCryptedChallenge(__in PBYTE pChallenge, __in DWORD dwChallengeSize, __in PCCERT_CONTEXT pCertContext, __in PWSTR Pin, __out PBYTE *pSymetricKey, __out DWORD *usSize)
 {
 	BOOL fReturn = FALSE;
@@ -981,6 +984,8 @@ BOOL CStoredCredentialManager::GetResponseFromCryptedChallenge(__in PBYTE pChall
 			}
 		}
 
+		// This API is deprecated.
+		// According to <https://learn.microsoft.com/en-us/windows/win32/api/wincrypt/nf-wincrypt-cryptgetuserkey>
 		if (!CryptGetUserKey(hProv, dwKeySpec, &hKey))
 		{
 			dwError = GetLastError();
@@ -1001,6 +1006,9 @@ BOOL CStoredCredentialManager::GetResponseFromCryptedChallenge(__in PBYTE pChall
 			EIDCardLibraryTrace(WINEVENT_LEVEL_WARNING,L"Error 0x%08x returned by WideCharToMultiByte", GetLastError());
 			__leave;
 		}
+		// Set parameter for CSP so that it can use our PIN to perform key exchange or signature?
+		// This API is deprecated.
+		// According to <https://learn.microsoft.com/en-us/windows/win32/api/wincrypt/nf-wincrypt-cryptsetprovparam>
 		if (!CryptSetProvParam(hProv, (dwKeySpec == AT_KEYEXCHANGE?PP_KEYEXCHANGE_PIN:PP_SIGNATURE_PIN), (PBYTE) pbPin , 0))
 		{
 			dwError = GetLastError();
@@ -1008,6 +1016,9 @@ BOOL CStoredCredentialManager::GetResponseFromCryptedChallenge(__in PBYTE pChall
 			__leave;
 		}
 		dwSize = sizeof(DWORD);
+		// Get the block size of the key.
+		// This API is deprecated.
+		// According to <https://learn.microsoft.com/en-us/windows/win32/api/wincrypt/nf-wincrypt-cryptgetkeyparam>
 		if (!CryptGetKeyParam(hKey, KP_BLOCKLEN, (PBYTE) &dwBlockLen, &dwSize, 0))
 		{
 			dwError = GetLastError();
@@ -1415,6 +1426,8 @@ BOOL CStoredCredentialManager::GetPasswordFromCryptedChallengeResponse(__in DWOR
 		bKey.cb = dwResponseSize;
 		memcpy(bKey.Data, pResponse, dwResponseSize);
 		// import the aes key
+		// This API is deprecated.
+		// According to <https://learn.microsoft.com/en-us/windows/win32/api/wincrypt/nf-wincrypt-cryptacquirecontexta>
 		fStatus = CryptAcquireContext(&hProv,CREDENTIAL_CONTAINER,CREDENTIALPROVIDER,PROV_RSA_AES,0);
 		if(!fStatus)
 		{
@@ -1944,6 +1957,14 @@ BOOL CStoredCredentialManager::RetrievePrivateData(__in DWORD dwRid, __out PEID_
 		lusSecretName.MaximumLength = lusSecretName.Length;
     
 		EIDCardLibraryTrace(WINEVENT_LEVEL_VERBOSE,L"Reading dwRid = 0x%x", dwRid);
+
+		/**
+		 * The content of the private data depends on the application or service
+		 * that stored it into the LSA.
+		 * 
+		 * Do not use the LSA private data functions.
+		 * According to <https://learn.microsoft.com/en-us/windows/win32/api/ntsecapi/nf-ntsecapi-lsaretrieveprivatedata>
+		 */
 		ntsResult = LsaRetrievePrivateData(LsaPolicyHandle,&lusSecretName,&pData);
 		if( STATUS_SUCCESS != ntsResult )
 		{
